@@ -1,0 +1,1303 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>뽑아뽑아 로또볼</title>
+<meta name="theme-color" content="#E7EAF1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1017" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="뽑아뽑아">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: a game-show booth (dark stage, lit lotto machine = hero) on the left, a quiet editing panel on the right; stacks to one column on phones */
+:root{
+  --bg:#E7EAF1; --surface:#FFFFFF; --surface-2:#F2F4F8; --ink:#141722; --muted:#5A6173; --line:#D5DAE5;
+  --accent:#2F4FE0; --accent-ink:#FFFFFF; --sun:#FFC23D; --danger:#C93A30; --ok:#16875A; --warn:#A86A00;
+  --stage:#191D2A; --stage-2:#252B3D; --stage-ink:#F3F5FA; --stage-muted:#A3AAC0; --rim:#11141D;
+  --f-display:"Black Han Sans","IBM Plex Sans KR","Malgun Gothic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+  --f-num:"Bricolage Grotesque","IBM Plex Sans KR",system-ui,sans-serif;
+  --r-sm:8px; --r-md:14px; --r-lg:24px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1017; --surface:#171A24; --surface-2:#1E2230; --ink:#ECEFF6; --muted:#9AA1B4; --line:#2A2F3F;
+    --accent:#8095FF; --accent-ink:#0E1017; --sun:#FFCD5C; --danger:#FF7A6E; --ok:#4FD49A; --warn:#F2B544;
+    --stage:#0A0C12; --stage-2:#161A26; --stage-ink:#F3F5FA; --stage-muted:#9AA1B4; --rim:#05060A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1017; --surface:#171A24; --surface-2:#1E2230; --ink:#ECEFF6; --muted:#9AA1B4; --line:#2A2F3F;
+  --accent:#8095FF; --accent-ink:#0E1017; --sun:#FFCD5C; --danger:#FF7A6E; --ok:#4FD49A; --warn:#F2B544;
+  --stage:#0A0C12; --stage-2:#161A26; --stage-ink:#F3F5FA; --stage-muted:#9AA1B4; --rim:#05060A;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding-inline:16px;padding-block:0 40px}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.wrap{max-width:1180px;margin:0 auto}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand svg{flex:none}
+.brand-name{font-family:var(--f-display);font-size:22px;letter-spacing:.01em;line-height:1}
+.brand-tag{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.icon-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:500}
+.icon-btn:hover{border-color:var(--muted)}
+.icon-btn[aria-pressed="false"] .sound-on,.icon-btn[aria-pressed="true"] .sound-off{display:none}
+
+/* layout */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}}
+
+/* stage */
+.stage{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);background:radial-gradient(120% 80% at 50% 0%,var(--stage-2),var(--stage) 70%);color:var(--stage-ink);border-radius:var(--r-lg);padding:28px 24px 24px;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:16px}
+@media (max-width:900px){.stage{position:relative;top:auto}}
+.stage-head{text-align:center;display:grid;gap:6px;max-width:100%}
+.eyebrow{font-family:var(--f-num);font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--stage-muted);margin:0}
+.game-title{font-family:var(--f-display);font-weight:400;font-size:clamp(26px,4.2vw,40px);line-height:1.15;margin:0;text-wrap:balance;overflow-wrap:anywhere}
+
+.machine-box{position:relative;width:min(100%,440px);aspect-ratio:100/118;max-width:100%}
+.machine-box canvas{display:block;width:100%;height:100%;cursor:pointer}
+
+.go{border:0;border-radius:999px;background:var(--sun);color:#1B1D24;font-family:var(--f-display);font-size:22px;padding:14px 40px;cursor:pointer;box-shadow:0 6px 0 #B9861A,0 14px 24px rgba(0,0,0,.35);transition:transform .1s ease,box-shadow .1s ease;display:inline-flex;align-items:center;gap:10px}
+.go:hover:not(:disabled){filter:brightness(1.05)}
+.go:active:not(:disabled){transform:translateY(4px);box-shadow:0 2px 0 #B9861A,0 6px 12px rgba(0,0,0,.35)}
+.go:disabled{opacity:.55;cursor:default}
+.stage-hint{font-size:13px;color:var(--stage-muted);margin:0;text-align:center}
+kbd{font-family:var(--f-num);font-size:12px;border:1px solid var(--stage-muted);border-bottom-width:2px;border-radius:5px;padding:0 5px}
+
+/* tray: the balls that came out */
+.tray{width:100%;max-width:520px;display:grid;gap:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--r-md);padding:12px 14px}
+.tray-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;color:var(--stage-muted)}
+.tray-count{font-family:var(--f-num);font-weight:800;font-variant-numeric:tabular-nums;color:var(--stage-ink)}
+.tray-balls{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 8px;list-style:none;margin:0;padding:0}
+.tray-balls li{display:grid;justify-items:center;gap:3px;width:56px}
+.slot{width:44px;height:44px;border-radius:50%;border:2px dashed rgba(255,255,255,.18)}
+.tray-name{font-size:11px;line-height:1.25;max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--stage-ink)}
+.tray-balls li.new .ball{animation:drop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes drop{from{transform:translateY(-30px) scale(.4);opacity:0}to{transform:none;opacity:1}}
+
+/* a lotto ball: colored shell, white disc, number */
+.ball{--c:#2F4FE0;width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;background:radial-gradient(circle at 32% 28%,color-mix(in srgb,var(--c) 45%,#fff),var(--c) 52%,color-mix(in srgb,var(--c) 70%,#000));box-shadow:0 3px 8px rgba(0,0,0,.35)}
+.ball b{width:58%;aspect-ratio:1;border-radius:50%;background:#fff;color:#141722;display:grid;place-items:center;font-family:var(--f-num);font-weight:800;font-size:13px;font-variant-numeric:tabular-nums;line-height:1}
+.ball.big{width:58px;height:58px}
+.ball.big b{font-size:17px}
+
+#confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+
+.result{position:absolute;inset:0;display:grid;place-items:center;background:rgba(5,6,10,.55);z-index:5;padding:20px;animation:fade .2s ease}
+.result-card{background:var(--surface);color:var(--ink);border-radius:var(--r-lg);padding:26px 22px 22px;width:min(100%,400px);max-height:100%;overflow:auto;text-align:center;display:grid;gap:14px;border-top:10px solid var(--win,#2F4FE0);box-shadow:0 30px 60px rgba(0,0,0,.4);animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+.result-card .eyebrow{color:var(--muted)}
+.result-name{font-family:var(--f-display);font-size:clamp(30px,7vw,44px);line-height:1.15;margin:0;overflow-wrap:anywhere;text-wrap:balance}
+.result-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.result-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;text-align:left}
+.result-list li{display:flex;align-items:center;gap:12px;min-width:0}
+.result-list .ord{font-family:var(--f-num);font-size:12px;color:var(--muted);width:30px;flex:none;text-align:right;font-variant-numeric:tabular-nums}
+.result-list .nm{font-family:var(--f-display);font-size:22px;line-height:1.2;overflow-wrap:anywhere;min-width:0}
+.result-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* panel */
+.panel{display:grid;gap:14px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:18px;display:grid;gap:14px;min-width:0}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card h2{font-size:13px;font-weight:700;letter-spacing:.06em;margin:0;color:var(--muted)}
+fieldset.bare{border:0;padding:0;margin:0;min-width:0;display:grid;gap:14px}
+
+.field{display:grid;gap:6px}
+.field>label,.lbl{font-size:13px;font-weight:500;color:var(--muted)}
+.input{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px;outline:none;min-width:0}
+.input:focus{border-color:var(--accent);background:var(--surface)}
+.name-input{font-size:18px;font-weight:700}
+
+.pill{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.pill.ok{color:var(--ok)} .pill.warn{color:var(--warn)} .pill.idle{color:var(--muted)}
+
+.count-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stepper{display:inline-flex;align-items:stretch;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface-2);flex:none}
+.stepper button{border:0;background:transparent;width:40px;font-size:20px;cursor:pointer;line-height:1}
+.stepper button:hover:not(:disabled){background:var(--line)}
+.stepper button:disabled{opacity:.35;cursor:default}
+.stepper input{width:52px;border:0;background:transparent;text-align:center;font-family:var(--f-num);font-weight:800;font-size:20px;font-variant-numeric:tabular-nums;padding:6px 0;-moz-appearance:textfield;appearance:textfield}
+.stepper input::-webkit-inner-spin-button,.stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.count-note{font-size:12px;color:var(--muted)}
+
+.names-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.opts{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:420px;overflow:auto;padding-right:2px}
+.opt{display:grid;grid-template-columns:30px minmax(0,1fr) 32px;align-items:center;gap:8px}
+.opt .ball{width:30px;height:30px;box-shadow:none}
+.opt .ball b{font-size:10px}
+.opt .input{padding:8px 10px}
+.x{border:0;background:transparent;width:32px;height:32px;border-radius:50%;cursor:pointer;color:var(--muted);font-size:18px;line-height:1}
+.x:hover:not(:disabled){background:var(--surface-2);color:var(--danger)}
+.x:disabled{opacity:.25;cursor:default}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid transparent;border-radius:999px;padding:10px 18px;font-weight:700;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:transform .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--muted)}
+.btn.small{padding:6px 12px;font-size:13px}
+.btn.grow{flex:1 1 140px}
+.btn:disabled{opacity:.45;cursor:default}
+
+.saved{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.saved li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 8px 8px 12px;border:1px solid var(--line);border-radius:var(--r-sm)}
+.saved li.current{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.saved-load{border:0;background:transparent;text-align:left;cursor:pointer;padding:0;min-width:0;display:grid}
+.saved-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.saved-meta{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.saved-del{border:1px solid transparent;background:transparent;border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;color:var(--muted)}
+.saved-del:hover{color:var(--danger)}
+.saved-del.confirm{border-color:var(--danger);color:var(--danger);font-weight:700}
+.empty{font-size:13px;color:var(--muted);margin:0}
+
+.share-note{margin:0;font-size:13px;color:var(--muted)}
+/* KakaoTalk's own brand yellow, same in both themes */
+.btn.kakao{background:#FEE500;color:#191919}
+.btn.kakao:hover{filter:brightness(.97)}
+.share-out{font-family:var(--f-num);font-size:12px}
+
+.foot{max-width:1180px;margin:28px auto 0;font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between}
+
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:500;z-index:50;max-width:calc(100% - 32px);text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:fade .2s ease}
+
+.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.icon-btn.install{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.install-help{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px;margin-bottom:16px;display:grid;gap:6px;font-size:14px}
+.install-help strong{font-size:15px}
+.install-help ol{margin:0;padding-left:20px}
+.install-help .btn{justify-self:start}
+
+.inapp{background:var(--surface);border:2px solid var(--accent);border-radius:var(--r-md);padding:16px;margin-block:16px 4px;display:grid;gap:10px}
+.inapp-head{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.inapp strong{font-size:16px;line-height:1.35}
+.inapp p{margin:0;font-size:14px;color:var(--muted)}
+.inapp .btn-row .btn{flex:1 1 150px}
+.inapp-close{border:0;background:transparent;font-size:22px;line-height:1;color:var(--muted);cursor:pointer;padding:0 4px}
+.inapp-link{font-size:13px;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;justify-self:start}
+
+/* installed app */
+html{-webkit-tap-highlight-color:transparent}
+.stage{-webkit-user-select:none;user-select:none;touch-action:manipulation}
+@media (display-mode: standalone){
+  body{padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+  html,body{overscroll-behavior-y:none}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .result,.result-card,.toast,.tray-balls li.new .ball{animation:none}
+  .go{transition:none}
+}
+</style>
+
+<div class="wrap">
+  <div class="inapp" id="inapp" hidden role="region" aria-label="브라우저 안내">
+    <div class="inapp-head">
+      <strong id="inappTitle">카카오톡 안에서 열려 있어요</strong>
+      <button class="inapp-close" id="inappClose" type="button" aria-label="안내 닫기">×</button>
+    </div>
+    <p id="inappText">앱으로 설치하려면 Chrome에서 열어 주세요. 여기서도 추첨은 바로 할 수 있어요.</p>
+    <div class="btn-row">
+      <button class="btn primary" id="inappOpen" type="button">Chrome으로 열기</button>
+      <button class="btn ghost" id="inappCopy" type="button">링크 복사</button>
+    </div>
+    <button class="inapp-link" id="inappAlt" type="button" hidden>Chrome이 안 열리면 다른 브라우저로 열기</button>
+  </div>
+
+  <header class="top">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+        <circle cx="17" cy="17" r="16" fill="#11141D"/>
+        <circle cx="17" cy="17" r="12.5" fill="none" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="1.6"/>
+        <circle cx="12" cy="21" r="4" fill="#2F4FE0"/>
+        <circle cx="20.5" cy="22" r="4" fill="#FF6B57"/>
+        <circle cx="16" cy="14.5" r="4" fill="#FFC23D"/>
+        <circle cx="23" cy="14" r="3.4" fill="#2BB673"/>
+        <circle cx="10.5" cy="13" r="3" fill="#8E6CF0"/>
+      </svg>
+      <div>
+        <div class="brand-name">뽑아뽑아 로또볼</div>
+        <div class="brand-tag">고민될 땐 뽑아보세요</div>
+      </div>
+    </div>
+    <div class="top-actions">
+    <button class="icon-btn install" id="installBtn" type="button" hidden>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+      <span>앱 설치</span>
+    </button>
+    <button class="icon-btn" id="soundBtn" type="button" aria-pressed="true">
+      <svg class="sound-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+      <svg class="sound-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+      <span id="soundLabel">소리 켜짐</span>
+    </button>
+    </div>
+  </header>
+
+  <div class="install-help" id="installHelp" hidden>
+    <strong>아이폰 홈 화면에 추가하기</strong>
+    <ol>
+      <li>Safari 아래쪽의 공유 버튼(네모에 화살표)을 누르세요.</li>
+      <li>목록에서 <b>홈 화면에 추가</b>를 고르세요.</li>
+      <li>홈 화면의 뽑아뽑아 아이콘으로 앱처럼 열 수 있어요.</li>
+    </ol>
+    <button class="btn ghost small" id="installHelpClose" type="button">알겠어요</button>
+  </div>
+
+  <main class="layout">
+    <section class="stage" id="stage" aria-label="로또 추첨기">
+      <div class="stage-head">
+        <p class="eyebrow" id="stageEyebrow">45 balls · pick 6</p>
+        <h1 class="game-title" id="stageTitle">이번 주 행운 번호</h1>
+      </div>
+
+      <div class="machine-box">
+        <canvas id="machine" aria-hidden="true"></canvas>
+      </div>
+
+      <button class="go" id="goBtn" type="button">추첨 시작</button>
+      <p class="stage-hint">기계를 누르거나 <kbd>Space</kbd> 키를 눌러 추첨하세요</p>
+
+      <div class="tray" aria-live="polite">
+        <div class="tray-head"><span>뽑힌 볼</span><span class="tray-count" id="trayCount">0 / 6</span></div>
+        <ol class="tray-balls" id="tray"></ol>
+      </div>
+
+      <canvas id="confetti" aria-hidden="true"></canvas>
+
+      <div class="result" id="result" hidden role="dialog" aria-modal="true" aria-labelledby="resultEyebrow">
+        <div class="result-card" id="resultCard">
+          <p class="eyebrow" id="resultEyebrow">오늘의 당첨</p>
+          <div id="resultBody"></div>
+          <div class="result-actions">
+            <button class="btn primary" id="againBtn" type="button">한 번 더 추첨</button>
+            <button class="btn ghost" id="closeResult" type="button">닫기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="card">
+        <fieldset class="bare" id="editor">
+          <div class="field">
+            <div class="card-head">
+              <label for="gameName">게임 이름</label>
+              <span class="pill idle" id="status">저장 안 됨</span>
+            </div>
+            <input class="input name-input" id="gameName" type="text" maxlength="40" autocomplete="off" placeholder="예: 이번 주 청소 당번">
+          </div>
+
+          <div class="count-row">
+            <div class="field">
+              <label class="lbl" for="count">볼 개수</label>
+              <span class="count-note">2개부터 45개까지</span>
+            </div>
+            <div class="stepper">
+              <button type="button" id="minus" aria-label="볼 하나 줄이기">−</button>
+              <input id="count" type="number" min="2" max="45" inputmode="numeric" aria-label="볼 개수">
+              <button type="button" id="plus" aria-label="볼 하나 늘리기">+</button>
+            </div>
+          </div>
+
+          <div class="count-row">
+            <div class="field">
+              <label class="lbl" for="pick">뽑을 개수</label>
+              <span class="count-note" id="pickNote">한 번에 뽑을 볼 수</span>
+            </div>
+            <div class="stepper">
+              <button type="button" id="pickMinus" aria-label="뽑을 개수 줄이기">−</button>
+              <input id="pick" type="number" min="1" max="45" inputmode="numeric" aria-label="뽑을 개수">
+              <button type="button" id="pickPlus" aria-label="뽑을 개수 늘리기">+</button>
+            </div>
+          </div>
+
+          <div class="names-head">
+            <span class="lbl">볼 이름</span>
+            <span class="count-note">비워 두면 번호만 나와요</span>
+          </div>
+          <ol class="opts" id="opts"></ol>
+
+          <div class="btn-row">
+            <button class="btn primary grow" id="saveBtn" type="button">저장하기</button>
+            <button class="btn ghost grow" id="newBtn" type="button">새 게임</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>저장한 게임</h2>
+          <span class="saved-meta" id="savedCount"></span>
+        </div>
+        <ul class="saved" id="savedList"></ul>
+        <p class="empty" id="savedEmpty">아직 저장한 게임이 없어요. 저장하면 다음에 열었을 때 그 게임이 바로 나와요.</p>
+      </div>
+
+      <div class="card">
+        <h2>친구와 게임 공유하기</h2>
+        <p class="share-note">지금 화면의 추첨기를 링크로 보내요. 친구가 링크를 누르면 같은 추첨기가 바로 열려요.</p>
+        <div class="btn-row">
+          <button class="btn kakao grow" id="shareBtn" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7l-1 3.6c-.1.4.3.7.6.5l4.3-2.8c.5.1 1 .1 1.4.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg>
+            카톡으로 공유
+          </button>
+          <button class="btn ghost grow" id="copyLink" type="button">링크 복사</button>
+        </div>
+        <input class="input share-out" id="linkOut" type="text" readonly hidden aria-label="공유 링크">
+      </div>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <span>저장한 게임은 이 브라우저에만 보관돼요.</span>
+    <span>비상업적 용도로 누구나 자유롭게 쓸 수 있어요.</span>
+  </footer>
+</div>
+
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const TAU = Math.PI * 2, MIN = 2, MAX = 45;
+  const KEY_GAMES = 'lottoball.games.v1', KEY_LAST = 'lottoball.last.v1', KEY_SOUND = 'lottoball.sound.v1';
+  const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const K = reduced ? 0.5 : 1; // timing scale
+
+  const store = {
+    get(k, f) { try { const v = localStorage.getItem(k); return v == null ? f : JSON.parse(v); } catch (e) { return f; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+    del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  };
+
+  // Ball colors stay the same in both themes: they are the balls themselves.
+  const PALETTE = ['#2F4FE0', '#FFC23D', '#FF6B57', '#2BB673', '#8E6CF0', '#14A3B8', '#F78FB3', '#2A3352'];
+  const colorFor = i => PALETTE[i % PALETTE.length];
+
+  const SAMPLE = { name: '이번 주 행운 번호', options: Array(45).fill(''), pick: 6 };
+
+  let games = store.get(KEY_GAMES, []);
+  if (!Array.isArray(games)) games = [];
+  let game, dirty = false, isSample = false;
+  let drawing = false, picks = [];
+
+  const el = {
+    stage: $('#stage'), title: $('#stageTitle'), eyebrow: $('#stageEyebrow'), canvas: $('#machine'), go: $('#goBtn'),
+    tray: $('#tray'), trayCount: $('#trayCount'), result: $('#result'), resultCard: $('#resultCard'), resultBody: $('#resultBody'),
+    resultEyebrow: $('#resultEyebrow'),
+    name: $('#gameName'), status: $('#status'), count: $('#count'), minus: $('#minus'), plus: $('#plus'),
+    pick: $('#pick'), pickMinus: $('#pickMinus'), pickPlus: $('#pickPlus'), opts: $('#opts'),
+    editor: $('#editor'), savedList: $('#savedList'), savedEmpty: $('#savedEmpty'), savedCount: $('#savedCount'),
+    toast: $('#toast'), soundBtn: $('#soundBtn'), soundLabel: $('#soundLabel'), confetti: $('#confetti'),
+    linkOut: $('#linkOut')
+  };
+  const openedHref = location.href; // kept before the shared-game parameter is cleared from the address bar
+  const ctx = el.canvas.getContext('2d');
+
+  /* ---------- sound: everything is synthesized, no audio files ---------- */
+  const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+  const _ = null;
+  // An original oom-pah circus tune, 4 bars of eighth notes.
+  const MELODY = [
+    67, _, 68, 69, 72, _, 69, _,
+    67, _, 66, 67, 71, _, 67, _,
+    64, 65, 67, 69, 72, 74, 76, _,
+    79, _, 74, _, 71, _, 67, _
+  ];
+  const CHORDS = [
+    { bass: 48, notes: [64, 67, 72] },
+    { bass: 43, notes: [65, 71, 74] },
+    { bass: 48, notes: [64, 67, 72] },
+    { bass: 43, notes: [62, 67, 71] }
+  ];
+  const sfx = {
+    ctx: null, master: null, music: null, on: store.get(KEY_SOUND, true) !== false,
+    init() {
+      try {
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return false;
+          this.ctx = new AC();
+          this.master = this.ctx.createGain();
+          this.master.gain.value = this.on ? 0.55 : 0;
+          this.master.connect(this.ctx.destination);
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        return true;
+      } catch (e) { return false; }
+    },
+    setOn(v) {
+      this.on = v; store.set(KEY_SOUND, v);
+      if (this.master) this.master.gain.setTargetAtTime(v ? 0.55 : 0, this.ctx.currentTime, 0.02);
+    },
+    note(dest, freq, t, dur, type, vol, slideTo) {
+      const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(dest);
+      o.start(t); o.stop(t + dur + 0.03);
+    },
+    // Balls knocking against each other and the glass.
+    clack(strength) {
+      if (!this.ctx) return;
+      const v = Math.min(0.09, 0.025 + strength * 0.012);
+      this.note(this.master, 1700 + Math.random() * 1400, this.ctx.currentTime, 0.03, 'triangle', v);
+    },
+    whistleUp() {
+      if (!this.ctx) return;
+      this.note(this.master, 380, this.ctx.currentTime, 0.4, 'sine', 0.2, 1700);
+    },
+    suck() {
+      if (!this.ctx) return;
+      const t = this.ctx.currentTime;
+      this.note(this.master, 260, t, 0.55, 'sine', 0.14, 1100);
+      this.noise(this.master, t, 0.45, 0.08, 2500);
+    },
+    ding(step) {
+      if (!this.ctx) return;
+      const t = this.ctx.currentTime, base = 79 + (step % 5) * 2;
+      this.note(this.master, mtof(base), t, 0.18, 'square', 0.07);
+      this.note(this.master, mtof(base + 5), t + 0.08, 0.35, 'triangle', 0.12);
+    },
+    startMusic() {
+      if (!this.ctx) return;
+      this.stopMusic(true);
+      const g = this.ctx.createGain();
+      g.connect(this.master);
+      const eighth = 60 / 172 / 2;
+      const m = { gain: g, step: 0, next: this.ctx.currentTime + 0.3, timer: 0 };
+      const schedule = () => {
+        while (m.next < this.ctx.currentTime + 0.12) {
+          this.playStep(g, m.step, m.next, eighth);
+          m.step = (m.step + 1) % MELODY.length;
+          m.next += eighth;
+        }
+      };
+      schedule();
+      m.timer = setInterval(schedule, 25);
+      this.music = m;
+    },
+    playStep(dest, s, t, eighth) {
+      const mel = MELODY[s];
+      if (mel) this.note(dest, mtof(mel), t, eighth * 0.85, 'square', 0.055);
+      const ch = CHORDS[Math.floor(s / 8)];
+      if (s % 4 === 0) this.note(dest, mtof(ch.bass - (s % 8 === 4 ? 5 : 0)), t, eighth * 1.5, 'triangle', 0.3);
+      if (s % 4 === 2) ch.notes.forEach(n => this.note(dest, mtof(n), t, eighth * 0.5, 'square', 0.022));
+    },
+    stopMusic(now) {
+      const m = this.music;
+      if (!m) return;
+      clearInterval(m.timer);
+      const t = this.ctx.currentTime;
+      m.gain.gain.setValueAtTime(1, t);
+      m.gain.gain.linearRampToValueAtTime(0, t + (now ? 0.02 : 0.2));
+      setTimeout(() => m.gain.disconnect(), 500);
+      this.music = null;
+    },
+    tada() {
+      if (!this.ctx) return;
+      const t = this.ctx.currentTime + 0.05;
+      [72, 76, 79].forEach((n, i) => this.note(this.master, mtof(n), t + i * 0.09, 0.13, 'square', 0.09));
+      [72, 76, 79, 84].forEach(n => this.note(this.master, mtof(n), t + 0.3, 1.0, 'triangle', 0.12));
+      this.note(this.master, mtof(84), t + 0.3, 0.9, 'square', 0.04);
+      this.noise(this.master, t + 0.3, 1.2, 0.22, 5000); // cymbal crash
+    },
+    noiseBuf: null,
+    noise(dest, t, dur, vol, hp) {
+      if (!this.noiseBuf) {
+        const len = this.ctx.sampleRate;
+        this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+        const d = this.noiseBuf.getChannelData(0);
+        for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      }
+      const src = this.ctx.createBufferSource(), f = this.ctx.createBiquadFilter(), g = this.ctx.createGain();
+      src.buffer = this.noiseBuf;
+      f.type = 'highpass'; f.frequency.value = hp;
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(f); f.connect(g); g.connect(dest);
+      src.start(t, Math.random() * 0.5); src.stop(t + dur + 0.02);
+    },
+    // Snare roll while the machine decides which ball comes out next.
+    roll: null,
+    startRoll() {
+      if (!this.ctx || this.roll) return;
+      const g = this.ctx.createGain();
+      g.connect(this.master);
+      const t0 = this.ctx.currentTime;
+      g.gain.setValueAtTime(0.4, t0);
+      g.gain.linearRampToValueAtTime(1, t0 + 1.2);
+      const r = { gain: g, next: t0 + 0.02, timer: 0, k: 0 };
+      const schedule = () => {
+        while (r.next < this.ctx.currentTime + 0.1) {
+          this.noise(g, r.next, 0.06, r.k++ % 2 ? 0.16 : 0.22, 1200);
+          r.next += 0.042;
+        }
+      };
+      schedule();
+      r.timer = setInterval(schedule, 20);
+      this.roll = r;
+    },
+    stopRoll() {
+      const r = this.roll;
+      if (!r) return;
+      clearInterval(r.timer);
+      const t = this.ctx.currentTime;
+      r.gain.gain.cancelScheduledValues(t);
+      r.gain.gain.setValueAtTime(r.gain.gain.value, t);
+      r.gain.gain.linearRampToValueAtTime(0, t + 0.05);
+      setTimeout(() => r.gain.disconnect(), 300);
+      this.roll = null;
+    }
+  };
+  const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
+
+  /* ---------- helpers ---------- */
+  const labelAt = i => (game.options[i] || '').trim() || `${i + 1}번`;
+  const hasName = i => !!(game.options[i] || '').trim();
+  function rand() {
+    try { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] / 4294967296; }
+    catch (e) { return Math.random(); }
+  }
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  let toastTimer = 0;
+  function toast(msg) {
+    el.toast.textContent = msg;
+    el.toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.toast.hidden = true; }, 2800);
+  }
+  const fmtDate = ts => {
+    const d = new Date(ts);
+    return `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  };
+  function ballEl(i, big) {
+    const b = document.createElement('span');
+    b.className = 'ball' + (big ? ' big' : '');
+    b.style.setProperty('--c', colorFor(i));
+    b.innerHTML = `<b>${i + 1}</b>`;
+    return b;
+  }
+
+  /* ---------- physics: balls live in a unit circle (globe radius = 1, y points down) ---------- */
+  let balls = [], br = 0.15;          // br = ball radius in globe units
+  let mix = 0, mixTarget = 0;         // air blower strength 0..1
+  const STEP = 1 / 120;
+  const LIP = 0.015;                  // glass thickness
+
+  function ballRadius(n) { return Math.min(0.16, Math.sqrt(0.34 / n)); }
+
+  function resetBalls() {
+    const n = game.options.length;
+    br = ballRadius(n);
+    balls = Array.from({ length: n }, (_, i) => {
+      const a = Math.random() * TAU, d = Math.random() * (0.9 - br);
+      return { i, x: Math.cos(a) * d, y: Math.abs(Math.sin(a) * d) * 0.6 + 0.2, vx: 0, vy: 0, state: 'in' };
+    });
+    const m = mix; mix = 0;
+    for (let k = 0; k < 360; k++) physics(STEP, true);
+    mix = m;
+  }
+
+  function physics(dt, settling) {
+    const r = br, lim = 1 - r - LIP, d2min = 4 * r * r;
+    const act = balls.filter(b => b.state === 'in');
+    const m = mix;
+    for (const b of act) {
+      b.vy += 3.2 * dt;
+      if (m > 0.001) {
+        // the blower pushes hard near the bottom, softly near the top, plus a swirl and random gusts
+        const lift = b.y > -0.25 ? 11 * (0.55 + Math.max(0, b.y)) : 1.5;
+        b.vy -= lift * m * dt;
+        b.vx += (Math.random() - 0.5) * 70 * m * dt;
+        b.vy += (Math.random() - 0.5) * 70 * m * dt;
+        b.vx += -b.y * 2.4 * m * dt;
+        b.vy += b.x * 2.4 * m * dt;
+      } else {
+        const damp = settling ? 3 : 0.6;
+        b.vx *= 1 - damp * dt; b.vy *= 1 - damp * dt;
+      }
+      const sp = Math.hypot(b.vx, b.vy);
+      if (sp > 4.2) { b.vx *= 4.2 / sp; b.vy *= 4.2 / sp; }
+      b.x += b.vx * dt; b.y += b.vy * dt;
+    }
+    let hit = 0;
+    for (let a = 0; a < act.length; a++) {
+      const p = act[a];
+      for (let c = a + 1; c < act.length; c++) {
+        const q = act[c];
+        const dx = q.x - p.x, dy = q.y - p.y, d2 = dx * dx + dy * dy;
+        if (d2 >= d2min) continue;
+        const d = Math.sqrt(d2) || 1e-6, nx = dx / d, ny = dy / d, ov = (2 * r - d) / 2;
+        p.x -= nx * ov; p.y -= ny * ov; q.x += nx * ov; q.y += ny * ov;
+        const vrel = (q.vx - p.vx) * nx + (q.vy - p.vy) * ny;
+        if (vrel < 0) {
+          const j = -(1 + 0.85) * vrel / 2;
+          p.vx -= j * nx; p.vy -= j * ny; q.vx += j * nx; q.vy += j * ny;
+          if (-vrel > hit) hit = -vrel;
+        }
+      }
+    }
+    for (const b of act) {
+      const d = Math.hypot(b.x, b.y);
+      if (d <= lim) continue;
+      const nx = b.x / d, ny = b.y / d;
+      b.x = nx * lim; b.y = ny * lim;
+      const vn = b.vx * nx + b.vy * ny;
+      if (vn > 0) {
+        b.vx -= 1.7 * vn * nx; b.vy -= 1.7 * vn * ny;
+        b.vx *= 0.985; b.vy *= 0.985;
+        if (vn > hit) hit = vn;
+      }
+    }
+    return hit;
+  }
+
+  /* ---------- drawing the machine ---------- */
+  function geom() {
+    const W = el.canvas.clientWidth, H = el.canvas.clientHeight;
+    const R = W * 0.4;
+    return { W, H, R, cx: W / 2, cy: H - R - W * 0.16 };
+  }
+  const NECK_TOP = -1.46;
+
+  function drawBall(g, x, y, i, alpha) {
+    const px = g.cx + x * g.R, py = g.cy + y * g.R, rad = br * g.R, col = colorFor(i);
+    ctx.globalAlpha = alpha;
+    const grad = ctx.createRadialGradient(px - rad * 0.35, py - rad * 0.4, rad * 0.1, px, py, rad);
+    grad.addColorStop(0, mixHex(col, '#FFFFFF', 0.55));
+    grad.addColorStop(0.5, col);
+    grad.addColorStop(1, mixHex(col, '#000000', 0.3));
+    ctx.beginPath(); ctx.arc(px, py, rad, 0, TAU); ctx.fillStyle = grad; ctx.fill();
+    ctx.beginPath(); ctx.arc(px, py, rad * 0.6, 0, TAU); ctx.fillStyle = '#FFFFFF'; ctx.fill();
+    ctx.fillStyle = '#141722';
+    const fs = rad * (i + 1 >= 10 ? 0.66 : 0.78);
+    ctx.font = `800 ${fs}px "Bricolage Grotesque","IBM Plex Sans KR",sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(String(i + 1), px, py + fs * 0.04);
+    ctx.globalAlpha = 1;
+  }
+  const hexCache = {};
+  function mixHex(a, b, t) {
+    const key = a + b + t;
+    if (hexCache[key]) return hexCache[key];
+    const p = h => [1, 3, 5].map(k => parseInt(h.slice(k, k + 2), 16));
+    const A = p(a), B = p(b);
+    return (hexCache[key] = 'rgb(' + A.map((v, k) => Math.round(v + (B[k] - v) * t)).join(',') + ')');
+  }
+
+  function draw(now) {
+    const g = geom();
+    if (!g.W) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const pw = Math.round(g.W * dpr), ph = Math.round(g.H * dpr);
+    if (el.canvas.width !== pw || el.canvas.height !== ph) { el.canvas.width = pw; el.canvas.height = ph; }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, g.W, g.H);
+    const rim = getComputedStyle(document.documentElement).getPropertyValue('--rim').trim() || '#11141D';
+    const { cx, cy, R, H } = g;
+    const nw = (br + 0.035) * R; // half the neck width
+
+    // stand
+    ctx.beginPath();
+    ctx.moveTo(cx - 0.42 * R, cy + 0.7 * R); ctx.lineTo(cx + 0.42 * R, cy + 0.7 * R);
+    ctx.lineTo(cx + 0.78 * R, H - 2); ctx.lineTo(cx - 0.78 * R, H - 2); ctx.closePath();
+    ctx.fillStyle = rim; ctx.fill();
+    // marquee bulbs on the stand
+    const nb = 7, by = H - g.W * 0.075, blink = Math.floor((now || 0) / 140) % 2;
+    for (let k = 0; k < nb; k++) {
+      const x = cx + (k - (nb - 1) / 2) * R * 0.17;
+      const lit = drawing ? (k + blink) % 2 === 0 : true;
+      ctx.beginPath(); ctx.arc(x, by, Math.max(3, R * 0.03), 0, TAU);
+      ctx.shadowColor = lit ? 'rgba(255,214,120,0.9)' : 'transparent';
+      ctx.shadowBlur = lit ? R * 0.08 : 0;
+      ctx.fillStyle = lit ? '#FFE3A0' : '#4A4232';
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+
+    // neck tube
+    const neckBottom = cy - R * 0.97, neckTop = cy + NECK_TOP * R;
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.fillRect(cx - nw, neckTop, nw * 2, neckBottom - neckTop);
+
+    // globe back
+    const back = ctx.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.1, cx, cy, R);
+    back.addColorStop(0, 'rgba(255,255,255,0.10)');
+    back.addColorStop(1, 'rgba(255,255,255,0.03)');
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fillStyle = back; ctx.fill();
+
+    // balls
+    for (const b of balls) {
+      if (b.state === 'in') drawBall(g, b.x, b.y, b.i, 1);
+      else if (b.state === 'out') { const p = exitPos(b, now); drawBall(g, p.x, p.y, b.i, 1); }
+    }
+
+    // glass
+    ctx.lineWidth = Math.max(2, R * 0.022);
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.beginPath(); ctx.arc(cx, cy, R, -Math.PI / 2 + Math.asin(nw / R), 1.5 * Math.PI - Math.asin(nw / R)); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx - nw, neckBottom + R * 0.01); ctx.lineTo(cx - nw, neckTop);
+    ctx.moveTo(cx + nw, neckBottom + R * 0.01); ctx.lineTo(cx + nw, neckTop);
+    ctx.stroke();
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = R * 0.05;
+    ctx.beginPath(); ctx.arc(cx, cy, R * 0.86, Math.PI * 1.08, Math.PI * 1.32); ctx.stroke();
+    ctx.lineWidth = R * 0.035;
+    ctx.beginPath(); ctx.arc(cx, cy, R * 0.86, Math.PI * 1.38, Math.PI * 1.42); ctx.stroke();
+    ctx.lineCap = 'butt';
+
+    // collar where the neck meets the globe, and the cap the ball disappears into
+    ctx.fillStyle = rim;
+    roundRect(cx - nw * 1.45, cy - R * 1.02, nw * 2.9, R * 0.09, R * 0.03);
+    roundRect(cx - nw * 1.6, neckTop - R * 0.09, nw * 3.2, R * 0.13, R * 0.04);
+    ctx.fillStyle = '#FFC23D';
+    ctx.beginPath(); ctx.arc(cx, neckTop - R * 0.025, R * 0.022, 0, TAU); ctx.fill();
+  }
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
+    ctx.fill();
+  }
+
+  /* ---------- a picked ball is sucked to the top of the globe, then up the neck ---------- */
+  const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const easeInQuad = t => t * t;
+  function exitPos(b, now) {
+    const t = Math.max(0, Math.min(1, (now - b.t0) / b.dur));
+    const top = -(1 - br - LIP);
+    if (t < 0.5) {
+      const u = easeInOutCubic(t / 0.5);
+      return { x: b.fx + (0 - b.fx) * u, y: b.fy + (top - b.fy) * u };
+    }
+    const u = easeInQuad((t - 0.5) / 0.5);
+    return { x: 0, y: top + (NECK_TOP - top) * u };
+  }
+  function extract(b) {
+    const dur = 1300 * K;
+    b.state = 'out'; b.t0 = performance.now(); b.dur = dur; b.fx = b.x; b.fy = b.y;
+    wake();
+    return sleep(dur).then(() => { b.state = 'gone'; });
+  }
+
+  /* ---------- animation loop ---------- */
+  let raf = 0, last = 0, acc = 0, idleSince = 0, lastClack = 0;
+  function loop(now) {
+    const dt = Math.min(0.05, (now - (last || now)) / 1000);
+    last = now;
+    mix += (mixTarget - mix) * Math.min(1, dt * 2.5);
+    if (mixTarget === 0 && mix < 0.01) mix = 0;
+    acc += dt;
+    let hit = 0, n = 0;
+    while (acc >= STEP && n < 8) { hit = Math.max(hit, physics(STEP, false)); acc -= STEP; n++; }
+    if (n === 8) acc = 0;
+    if (hit > 1.2 && now - lastClack > 45 && (mix > 0.2 || hit > 2)) { sfx.clack(hit); lastClack = now; }
+    draw(now);
+    const busy = drawing || mix > 0 || balls.some(b => b.state === 'out');
+    if (busy) idleSince = now;
+    if (busy || now - idleSince < 2500) raf = requestAnimationFrame(loop);
+    else { raf = 0; last = 0; }
+  }
+  function wake() {
+    idleSince = performance.now();
+    if (!raf) { last = 0; raf = requestAnimationFrame(loop); }
+  }
+  const redraw = () => { if (!raf) draw(performance.now()); };
+
+  /* ---------- drawing the lots ---------- */
+  async function startDraw() {
+    if (drawing) return;
+    closeResult();
+    const n = game.options.length, want = Math.min(game.pick, n);
+    if (n < MIN) return;
+    sfx.init();
+    drawing = true;
+    el.editor.disabled = true;
+    el.go.disabled = true;
+    picks = [];
+    renderTray();
+    if (balls.some(b => b.state !== 'in')) resetBalls();
+
+    sfx.whistleUp();
+    sfx.startMusic();
+    mixTarget = 1;
+    wake();
+    await sleep(2600 * K);
+    sfx.stopMusic(false);
+
+    for (let p = 0; p < want; p++) {
+      sfx.startRoll();
+      await sleep((want > 6 ? 700 : 1100) * K);
+      sfx.stopRoll();
+      // Every ball still in the globe is equally likely.
+      const pool = balls.filter(b => b.state === 'in');
+      const target = pool[Math.floor(rand() * pool.length)];
+      sfx.suck();
+      await extract(target);
+      picks.push(target.i);
+      sfx.ding(p);
+      buzz(30);
+      renderTray(true);
+    }
+
+    mixTarget = 0;
+    drawing = false;
+    el.editor.disabled = false;
+    el.go.disabled = false;
+    sfx.tada();
+    buzz([40, 60, 90]);
+    wake();
+    showResult();
+  }
+
+  function showResult() {
+    const body = el.resultBody;
+    body.innerHTML = '';
+    const anyName = picks.some(hasName);
+    if (picks.length === 1) {
+      const i = picks[0];
+      const row = document.createElement('div');
+      row.className = 'result-row';
+      row.appendChild(ballEl(i, true));
+      body.appendChild(row);
+      if (anyName) {
+        const p = document.createElement('p');
+        p.className = 'result-name';
+        p.textContent = labelAt(i);
+        p.style.marginTop = '10px';
+        body.appendChild(p);
+      }
+    } else if (!anyName) {
+      const row = document.createElement('div');
+      row.className = 'result-row';
+      picks.forEach(i => row.appendChild(ballEl(i, true)));
+      body.appendChild(row);
+    } else {
+      const ol = document.createElement('ol');
+      ol.className = 'result-list';
+      picks.forEach((i, k) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="ord">${k + 1}.</span>`;
+        li.appendChild(ballEl(i, false));
+        const nm = document.createElement('span');
+        nm.className = 'nm';
+        nm.textContent = labelAt(i);
+        li.appendChild(nm);
+        ol.appendChild(li);
+      });
+      body.appendChild(ol);
+    }
+    el.resultEyebrow.textContent = picks.length === 1 ? '오늘의 당첨' : `오늘의 당첨 ${picks.length}개`;
+    el.resultCard.style.setProperty('--win', colorFor(picks[0]));
+    el.result.hidden = false;
+    $('#againBtn').focus({ preventScroll: true });
+    if (!reduced) confetti(colorFor(picks[0]));
+  }
+  function closeResult() { el.result.hidden = true; }
+
+  /* ---------- confetti ---------- */
+  function confetti(main) {
+    const cv = el.confetti, cx = cv.getContext('2d');
+    const w = cv.clientWidth, h = cv.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = w * dpr; cv.height = h * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const colors = [main, '#FFC23D', '#FF6B57', '#2BB673', '#8E6CF0', '#FFFFFF'];
+    const parts = Array.from({ length: 140 }, () => ({
+      x: w / 2, y: h * 0.4,
+      vx: (Math.random() - 0.5) * 16, vy: -Math.random() * 14 - 4,
+      s: 5 + Math.random() * 6, r: Math.random() * TAU, vr: (Math.random() - 0.5) * 0.4,
+      c: colors[Math.floor(Math.random() * colors.length)]
+    }));
+    const t0 = performance.now();
+    (function step(now) {
+      const life = (now - t0) / 2200;
+      cx.clearRect(0, 0, w, h);
+      if (life >= 1) return;
+      cx.globalAlpha = 1 - Math.max(0, life - 0.6) / 0.4;
+      parts.forEach(p => {
+        p.vy += 0.42; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r);
+        cx.fillStyle = p.c; cx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
+        cx.restore();
+      });
+      requestAnimationFrame(step);
+    })(t0);
+  }
+
+  /* ---------- rendering ---------- */
+  function renderTray(animateLast) {
+    const want = Math.min(game.pick, game.options.length);
+    el.tray.innerHTML = '';
+    for (let s = 0; s < want; s++) {
+      const li = document.createElement('li');
+      if (s < picks.length) {
+        const i = picks[s];
+        if (animateLast && s === picks.length - 1) li.className = 'new';
+        li.appendChild(ballEl(i, false));
+        if (hasName(i)) {
+          const nm = document.createElement('span');
+          nm.className = 'tray-name';
+          nm.textContent = labelAt(i);
+          li.appendChild(nm);
+        }
+      } else {
+        li.innerHTML = '<span class="slot"></span>';
+      }
+      el.tray.appendChild(li);
+    }
+    el.trayCount.textContent = `${picks.length} / ${want}`;
+  }
+  function renderStatus() {
+    let text, cls;
+    if (game.id && !dirty) { text = '저장됨'; cls = 'ok'; }
+    else if (game.id) { text = '변경사항 있음'; cls = 'warn'; }
+    else if (isSample) { text = '예시 · 저장 안 됨'; cls = 'idle'; }
+    else { text = '저장 안 됨'; cls = 'idle'; }
+    el.status.textContent = text;
+    el.status.className = 'pill ' + cls;
+  }
+  function renderStage() {
+    el.title.textContent = (game.name || '').trim() || '이름 없는 게임';
+    el.eyebrow.textContent = `${game.options.length} balls · pick ${game.pick}`;
+  }
+  function syncCount() {
+    const n = game.options.length;
+    if (game.pick > n) game.pick = n;
+    el.count.value = n;
+    el.minus.disabled = n <= MIN;
+    el.plus.disabled = n >= MAX;
+    el.pick.value = game.pick;
+    el.pick.max = n;
+    el.pickMinus.disabled = game.pick <= 1;
+    el.pickPlus.disabled = game.pick >= n;
+    renderStage();
+  }
+  function renderOptions() {
+    const n = game.options.length;
+    el.opts.innerHTML = '';
+    game.options.forEach((txt, i) => {
+      const li = document.createElement('li');
+      li.className = 'opt';
+      li.appendChild(ballEl(i, false));
+      li.insertAdjacentHTML('beforeend',
+        `<label class="sr" for="opt-${i}">${i + 1}번 볼 이름</label>` +
+        `<input class="input" id="opt-${i}" type="text" maxlength="30" autocomplete="off" placeholder="${i + 1}번">` +
+        `<button class="x" type="button" aria-label="${i + 1}번 볼 빼기">×</button>`);
+      const inp = li.querySelector('input');
+      inp.value = txt;
+      inp.addEventListener('input', () => { game.options[i] = inp.value; markDirty(); });
+      inp.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        if (i + 1 >= game.options.length && game.options.length < MAX) setCount(game.options.length + 1);
+        const nx = document.getElementById(`opt-${i + 1}`);
+        if (nx) nx.focus();
+      });
+      const x = li.querySelector('.x');
+      x.disabled = n <= MIN;
+      x.addEventListener('click', () => {
+        if (game.options.length <= MIN) return;
+        game.options.splice(i, 1);
+        markDirty(); afterShapeChange();
+      });
+      el.opts.appendChild(li);
+    });
+  }
+  function renderSaved() {
+    el.savedList.innerHTML = '';
+    el.savedEmpty.hidden = games.length > 0;
+    el.savedCount.textContent = games.length ? `${games.length}개` : '';
+    games.forEach(g => {
+      const li = document.createElement('li');
+      if (g.id === game.id) li.className = 'current';
+      li.innerHTML =
+        `<button class="saved-load" type="button"><span class="saved-name"></span><span class="saved-meta"></span></button>` +
+        `<button class="saved-del" type="button">삭제</button>`;
+      li.querySelector('.saved-name').textContent = g.name;
+      li.querySelector('.saved-meta').textContent = `볼 ${g.options.length}개 · ${g.pick}개 뽑기 · ${fmtDate(g.savedAt)}`;
+      li.querySelector('.saved-load').addEventListener('click', () => {
+        if (drawing) return;
+        loadGame(g);
+        toast(`'${g.name}' 게임을 불러왔어요`);
+      });
+      const del = li.querySelector('.saved-del');
+      let armed = 0;
+      del.addEventListener('click', () => {
+        if (!armed) {
+          del.classList.add('confirm'); del.textContent = '정말 삭제';
+          armed = setTimeout(() => { armed = 0; del.classList.remove('confirm'); del.textContent = '삭제'; }, 3000);
+          return;
+        }
+        clearTimeout(armed);
+        games = games.filter(x => x.id !== g.id);
+        store.set(KEY_GAMES, games);
+        if (game.id === g.id) { game.id = null; dirty = true; store.del(KEY_LAST); renderStatus(); }
+        renderSaved();
+        toast('삭제했어요');
+      });
+      el.savedList.appendChild(li);
+    });
+  }
+  function renderAll() {
+    el.name.value = game.name;
+    picks = [];
+    resetBalls();
+    renderOptions(); syncCount(); renderStatus(); renderSaved(); renderTray(); redraw();
+  }
+  // Ball count changed: rebuild the balls and the list.
+  function afterShapeChange() {
+    picks = [];
+    resetBalls();
+    renderOptions(); syncCount(); renderTray(); redraw();
+  }
+
+  /* ---------- game state ---------- */
+  function markDirty() { dirty = true; isSample = false; renderStatus(); }
+  function setCount(n) {
+    n = Math.max(MIN, Math.min(MAX, Math.round(Number(n) || MIN)));
+    const cur = game.options.length;
+    if (n === cur) { syncCount(); return; }
+    if (n > cur) for (let k = cur; k < n; k++) game.options.push('');
+    else game.options = game.options.slice(0, n);
+    markDirty(); afterShapeChange();
+  }
+  function setPick(k) {
+    k = Math.max(1, Math.min(game.options.length, Math.round(Number(k) || 1)));
+    if (k === game.pick) { syncCount(); return; }
+    game.pick = k;
+    picks = [];
+    markDirty(); syncCount(); renderTray();
+  }
+  function blankGame() {
+    return { id: null, name: '새 게임', options: Array(6).fill(''), pick: 1 };
+  }
+  const cleanPick = (k, n) => Math.max(1, Math.min(n, Math.round(Number(k) || 1)));
+  function loadGame(rec) {
+    game = { id: rec.id, name: rec.name, options: [...rec.options], pick: cleanPick(rec.pick, rec.options.length) };
+    dirty = false; isSample = false;
+    store.set(KEY_LAST, rec.id);
+    closeResult();
+    renderAll();
+  }
+  function save() {
+    const name = (game.name || '').trim() || '이름 없는 게임';
+    game.name = name;
+    game.options = game.options.map(o => o.trim());
+    if (!game.id) game.id = 'g' + Date.now().toString(36) + Math.floor(rand() * 1e6).toString(36);
+    const rec = { id: game.id, name, options: [...game.options], pick: game.pick, savedAt: Date.now() };
+    const i = games.findIndex(g => g.id === game.id);
+    if (i >= 0) games.splice(i, 1);
+    games.unshift(rec);
+    const ok = store.set(KEY_GAMES, games) && store.set(KEY_LAST, game.id);
+    dirty = false; isSample = false;
+    renderStatus(); renderSaved(); renderOptions();
+    toast(ok ? '저장했어요. 다음에 열면 이 게임이 바로 나와요.' : '이 브라우저에서는 저장할 수 없어요. 시크릿 모드인지 확인해 주세요.');
+  }
+  function startNew() {
+    game = blankGame();
+    dirty = false; isSample = false;
+    store.del(KEY_LAST); // unsaved games don't come back next time
+    closeResult();
+    renderAll();
+    el.name.focus(); el.name.select();
+    toast('새 게임을 만들었어요. 볼 개수와 뽑을 개수를 정해 보세요.');
+  }
+
+  /* ---------- share links: the whole game rides in the ?g= parameter, no server involved ---------- */
+  const APP_URL = 'https://parkjoe1966.github.io/lotto-ball/';
+  function encode(g) {
+    const data = { n: g.name, c: g.options.length, k: g.pick };
+    if (g.options.some(o => o)) data.o = g.options;
+    const json = JSON.stringify(data);
+    return btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function decode(param) {
+    let s = param.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    const data = JSON.parse(decodeURIComponent(escape(atob(s))));
+    if (!data) throw new Error('shape');
+    const c = Array.isArray(data.o) ? data.o.length : Math.round(Number(data.c));
+    if (!(c >= MIN)) throw new Error('count');
+    const n = Math.min(MAX, c);
+    const options = Array.from({ length: n }, (_, i) => Array.isArray(data.o) ? String(data.o[i] || '').slice(0, 30) : '');
+    return { name: String(data.n || '받은 게임').slice(0, 40), options, pick: cleanPick(data.k, n) };
+  }
+  function currentForShare() {
+    return {
+      name: (game.name || '').trim() || '이름 없는 게임',
+      options: game.options.map(o => o.trim()),
+      pick: game.pick
+    };
+  }
+  const shareLink = g => APP_URL + '?g=' + encode(g);
+
+  /* ---------- events ---------- */
+  el.go.addEventListener('click', startDraw);
+  el.canvas.addEventListener('click', startDraw);
+  $('#againBtn').addEventListener('click', startDraw);
+  $('#closeResult').addEventListener('click', closeResult);
+  el.result.addEventListener('click', e => { if (e.target === el.result) closeResult(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeResult(); return; }
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (e.code === 'Space' && !['input', 'textarea', 'button', 'summary'].includes(tag)) { e.preventDefault(); startDraw(); }
+  });
+
+  el.name.addEventListener('input', () => { game.name = el.name.value; markDirty(); renderStage(); });
+  el.minus.addEventListener('click', () => setCount(game.options.length - 1));
+  el.plus.addEventListener('click', () => setCount(game.options.length + 1));
+  el.count.addEventListener('change', () => setCount(el.count.value));
+  el.count.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); setCount(el.count.value); } });
+  el.pickMinus.addEventListener('click', () => setPick(game.pick - 1));
+  el.pickPlus.addEventListener('click', () => setPick(game.pick + 1));
+  el.pick.addEventListener('change', () => setPick(el.pick.value));
+  el.pick.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); setPick(el.pick.value); } });
+  $('#saveBtn').addEventListener('click', save);
+  $('#newBtn').addEventListener('click', startNew);
+
+  el.soundBtn.addEventListener('click', () => {
+    sfx.init();
+    sfx.setOn(!sfx.on);
+    renderSound();
+  });
+  function renderSound() {
+    el.soundBtn.setAttribute('aria-pressed', String(sfx.on));
+    el.soundLabel.textContent = sfx.on ? '소리 켜짐' : '소리 꺼짐';
+  }
+
+  function copyLink(url, okMsg) {
+    const fallback = () => {
+      el.linkOut.value = url; el.linkOut.hidden = false;
+      el.linkOut.focus(); el.linkOut.select();
+      toast('링크를 선택해 두었어요. 복사해서 보내세요.');
+    };
+    try { navigator.clipboard.writeText(url).then(() => toast(okMsg), fallback); }
+    catch (e) { fallback(); }
+  }
+  $('#shareBtn').addEventListener('click', async () => {
+    const g = currentForShare(), url = shareLink(g);
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `뽑아뽑아 로또볼 · ${g.name}`, text: `🎱 '${g.name}' 추첨기를 보냈어요! 눌러서 바로 뽑아보세요.`, url });
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return; // closed the share sheet
+      }
+    }
+    copyLink(url, '링크를 복사했어요. 카톡 대화창에 붙여넣어 보내세요.');
+  });
+  $('#copyLink').addEventListener('click', () => copyLink(shareLink(currentForShare()), '링크를 복사했어요'));
+
+  if (window.ResizeObserver) new ResizeObserver(redraw).observe(el.canvas);
+  window.addEventListener('resize', redraw);
+  if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', redraw);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);
+
+  /* ---------- install as a phone app ---------- */
+  const installBtn = $('#installBtn'), installHelp = $('#installHelp');
+  const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!standalone) installBtn.hidden = false;
+  });
+  window.addEventListener('appinstalled', () => { installBtn.hidden = true; toast('홈 화면에 설치했어요'); });
+  // In-app browsers (KakaoTalk etc.) can't install apps, so offer a way out to a real browser.
+  const ua = navigator.userAgent;
+  const isAndroid = /android/i.test(ua);
+  const isKakao = /KAKAOTALK/i.test(ua);
+  const inApp = isKakao || /NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|BAND\/|everytimeApp|; wv\)/i.test(ua);
+  if (inApp && !standalone && (isAndroid || isIOS)) {
+    const box = $('#inapp'), here = openedHref;
+    const target = new URL(openedHref);
+    const appName = isKakao ? '카카오톡' : '앱';
+    $('#inappTitle').textContent = `${appName} 안에서 열려 있어요`;
+    if (isAndroid) {
+      const chromeIntent = `intent://${target.host}${target.pathname}${target.search}#Intent;scheme=https;package=com.android.chrome;end`;
+      $('#inappOpen').addEventListener('click', () => { location.href = chromeIntent; });
+      if (isKakao) {
+        const alt = $('#inappAlt');
+        alt.hidden = false;
+        alt.addEventListener('click', () => { location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(here); });
+      }
+    } else {
+      $('#inappText').textContent = '앱으로 설치하려면 Safari에서 열어 주세요. 여기서도 추첨은 바로 할 수 있어요.';
+      if (isKakao) {
+        $('#inappOpen').textContent = 'Safari로 열기';
+        $('#inappOpen').addEventListener('click', () => { location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(here); });
+      } else {
+        $('#inappOpen').hidden = true;
+        $('#inappText').textContent = '앱으로 설치하려면 링크를 복사해 Safari 주소창에 붙여넣어 주세요.';
+      }
+    }
+    $('#inappCopy').addEventListener('click', () => {
+      try {
+        navigator.clipboard.writeText(here).then(() => toast('링크를 복사했어요. 브라우저 주소창에 붙여넣으세요.'), () => toast(here));
+      } catch (e) { toast(here); }
+    });
+    $('#inappClose').addEventListener('click', () => { box.hidden = true; });
+    box.hidden = false;
+  } else if (isIOS && !standalone) installBtn.hidden = false;
+  installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      try { await deferredPrompt.userChoice; } catch (e) {}
+      deferredPrompt = null;
+      installBtn.hidden = true;
+    } else {
+      installHelp.hidden = !installHelp.hidden;
+    }
+  });
+  $('#installHelpClose').addEventListener('click', () => { installHelp.hidden = true; });
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    try { navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
+  }
+
+  /* ---------- boot: the last saved game comes back; otherwise the sample ---------- */
+  // A game shared by link wins over everything else.
+  let shared = null;
+  try {
+    const p = new URLSearchParams(location.search).get('g');
+    if (p) shared = decode(p);
+  } catch (e) { shared = null; }
+
+  const lastId = store.get(KEY_LAST, null);
+  const lastRec = games.find(g => g.id === lastId);
+  if (shared) { game = { id: null, ...shared }; dirty = true; }
+  else if (lastRec) { game = { id: lastRec.id, name: lastRec.name, options: [...lastRec.options], pick: cleanPick(lastRec.pick, lastRec.options.length) }; }
+  else { game = { id: null, name: SAMPLE.name, options: [...SAMPLE.options], pick: SAMPLE.pick }; isSample = true; }
+  renderSound();
+  renderAll();
+
+  if (new URLSearchParams(location.search).has('g')) {
+    // Clear the parameter so a reload doesn't bring the shared game back over the user's own.
+    try { window.history.replaceState(null, '', location.pathname); } catch (e) {}
+    toast(shared ? `친구가 보낸 '${shared.name}' 추첨기예요. 저장하면 계속 쓸 수 있어요.` : '링크가 잘려서 추첨기를 불러오지 못했어요. 링크 전체를 다시 받아 주세요.');
+  }
+})();
+</script>
