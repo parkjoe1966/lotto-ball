@@ -51,7 +51,7 @@ button,input,textarea{font:inherit;color:inherit}
 /* header */
 .top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
-.brand svg{flex:none}
+.brand-icon{flex:none;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
 .brand-name{font-family:var(--f-display);font-size:22px;letter-spacing:.01em;line-height:1}
 .brand-tag{font-size:12px;color:var(--muted);letter-spacing:.04em}
 .icon-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:500}
@@ -224,15 +224,7 @@ html{-webkit-tap-highlight-color:transparent}
 
   <header class="top">
     <div class="brand">
-      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
-        <circle cx="17" cy="17" r="16" fill="#11141D"/>
-        <circle cx="17" cy="17" r="12.5" fill="none" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="1.6"/>
-        <circle cx="12" cy="21" r="4" fill="#2F4FE0"/>
-        <circle cx="20.5" cy="22" r="4" fill="#FF6B57"/>
-        <circle cx="16" cy="14.5" r="4" fill="#FFC23D"/>
-        <circle cx="23" cy="14" r="3.4" fill="#2BB673"/>
-        <circle cx="10.5" cy="13" r="3" fill="#8E6CF0"/>
-      </svg>
+      <img class="brand-icon" src="icons/icon-192.png" width="40" height="40" alt="">
       <div>
         <div class="brand-name">뽑아뽑아 로또볼</div>
         <div class="brand-tag">고민될 땐 뽑아보세요</div>
