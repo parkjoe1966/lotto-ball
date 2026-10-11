@@ -180,6 +180,23 @@ fieldset.bare{border:0;padding:0;margin:0;min-width:0;display:grid;gap:14px}
 .saved-del:hover{color:var(--danger)}
 .saved-del.confirm{border-color:var(--danger);color:var(--danger);font-weight:700}
 .empty{font-size:13px;color:var(--muted);margin:0}
+.head-actions{display:flex;align-items:center;gap:8px}
+.reorder-btn{border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer;color:var(--ink)}
+.reorder-btn:hover{border-color:var(--muted)}
+.reorder-btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.moves{display:flex;gap:4px}
+.move{width:34px;height:34px;border:1px solid var(--line);background:var(--surface-2);border-radius:50%;cursor:pointer;display:grid;place-items:center;color:var(--ink)}
+.move:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.move:disabled{opacity:.3;cursor:default}
+.saved.reordering li{border-style:dashed}
+
+/* exit confirmation (installed app, back button) */
+.exit{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;background:rgba(5,6,10,.55);animation:fade .15s ease}
+.exit-card{background:var(--surface);color:var(--ink);border-radius:var(--r-lg);padding:24px 22px 18px;width:min(100%,320px);display:grid;gap:8px;text-align:center;box-shadow:0 30px 60px rgba(0,0,0,.4)}
+.exit-card strong{font-size:18px}
+.exit-card p{margin:0 0 8px;font-size:14px;color:var(--muted)}
+.exit-card .btn-row .btn{flex:1 1 0}
+.btn.danger{background:var(--danger);color:#fff}
 
 /* ready-made games */
 details.card>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -362,7 +379,10 @@ html{-webkit-tap-highlight-color:transparent}
       <div class="card">
         <div class="card-head">
           <h2>저장한 게임</h2>
-          <span class="saved-meta" id="savedCount"></span>
+          <div class="head-actions">
+            <span class="saved-meta" id="savedCount"></span>
+            <button class="reorder-btn" id="reorderBtn" type="button" aria-pressed="false" hidden>순서 바꾸기</button>
+          </div>
         </div>
         <ul class="saved" id="savedList"></ul>
         <p class="empty" id="savedEmpty">아직 저장한 게임이 없어요. 저장하면 다음에 열었을 때 그 게임이 바로 나와요.</p>
@@ -397,6 +417,17 @@ html{-webkit-tap-highlight-color:transparent}
 </div>
 
 <div class="toast" id="toast" hidden role="status"></div>
+
+<div class="exit" id="exitDlg" hidden role="dialog" aria-modal="true" aria-labelledby="exitTitle">
+  <div class="exit-card">
+    <strong id="exitTitle">앱을 종료할까요?</strong>
+    <p>저장하지 않은 변경사항은 사라져요.</p>
+    <div class="btn-row">
+      <button class="btn ghost" id="exitCancel" type="button">취소</button>
+      <button class="btn danger" id="exitOk" type="button">종료</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (() => {
@@ -1140,8 +1171,8 @@ html{-webkit-tap-highlight-color:transparent}
     const old = games.find(g => g.name === p.name);
     const rec = { id: old ? old.id : 'g' + Date.now().toString(36) + Math.floor(rand() * 1e6).toString(36),
       name: p.name, options: [...p.options], pick: old ? cleanPick(old.pick, p.options.length) : 1, savedAt: Date.now() };
-    games = games.filter(g => g !== old);
-    games.unshift(rec);
+    const at = games.indexOf(old);
+    if (at >= 0) games[at] = rec; else games.unshift(rec);
     if (game.id === rec.id) { game.options = [...rec.options]; game.pick = rec.pick; dirty = false; }
     return rec;
   }
@@ -1190,16 +1221,43 @@ html{-webkit-tap-highlight-color:transparent}
     toast(ok ? `여행지 게임 ${todo.length}개를 저장했어요. 위의 '저장한 게임'에서 볼 수 있어요.` : '이 브라우저에서는 저장할 수 없어요. 시크릿 모드인지 확인해 주세요.');
   });
 
+  /* ---------- reordering saved games: up/down buttons while "순서 바꾸기" is on ---------- */
+  let reordering = false;
+  const reorderBtn = $('#reorderBtn');
+  reorderBtn.addEventListener('click', () => { reordering = !reordering; renderSaved(); });
+  function moveGame(from, to) {
+    if (to < 0 || to >= games.length) return;
+    const [g] = games.splice(from, 1);
+    games.splice(to, 0, g);
+    store.set(KEY_GAMES, games);
+    renderSaved();
+    // keep the finger/keyboard on the same game's arrow so it can be moved again right away
+    const row = el.savedList.children[to];
+    const btn = row && row.querySelector(to < from ? '.move.up' : '.move.down');
+    if (btn && !btn.disabled) btn.focus({ preventScroll: true });
+    else if (row) row.querySelector('.move:not(:disabled)')?.focus({ preventScroll: true });
+  }
+
   function renderSaved() {
     el.savedList.innerHTML = '';
     el.savedEmpty.hidden = games.length > 0;
     el.savedCount.textContent = games.length ? `${games.length}개` : '';
-    games.forEach(g => {
+    if (games.length < 2) reordering = false;
+    reorderBtn.hidden = games.length < 2;
+    reorderBtn.setAttribute('aria-pressed', String(reordering));
+    reorderBtn.textContent = reordering ? '완료' : '순서 바꾸기';
+    el.savedList.classList.toggle('reordering', reordering);
+    games.forEach((g, idx) => {
       const li = document.createElement('li');
       if (g.id === game.id) li.className = 'current';
       li.innerHTML =
         `<button class="saved-load" type="button"><span class="saved-name"></span><span class="saved-meta"></span></button>` +
-        `<button class="saved-del" type="button">삭제</button>`;
+        (reordering
+          ? `<span class="moves"><button class="move up" type="button">` +
+            `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>` +
+            `<button class="move down" type="button">` +
+            `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></span>`
+          : `<button class="saved-del" type="button">삭제</button>`);
       li.querySelector('.saved-name').textContent = g.name;
       li.querySelector('.saved-meta').textContent = `볼 ${g.options.length}개 · ${g.pick}개 뽑기 · ${fmtDate(g.savedAt)}`;
       li.querySelector('.saved-load').addEventListener('click', () => {
@@ -1207,6 +1265,17 @@ html{-webkit-tap-highlight-color:transparent}
         loadGame(g);
         toast(`'${g.name}' 게임을 불러왔어요`);
       });
+      if (reordering) {
+        const up = li.querySelector('.move.up'), down = li.querySelector('.move.down');
+        up.setAttribute('aria-label', `${g.name} 위로`);
+        down.setAttribute('aria-label', `${g.name} 아래로`);
+        up.disabled = idx === 0;
+        down.disabled = idx === games.length - 1;
+        up.addEventListener('click', () => moveGame(idx, idx - 1));
+        down.addEventListener('click', () => moveGame(idx, idx + 1));
+        el.savedList.appendChild(li);
+        return;
+      }
       const del = li.querySelector('.saved-del');
       let armed = 0;
       del.addEventListener('click', () => {
@@ -1274,8 +1343,7 @@ html{-webkit-tap-highlight-color:transparent}
     if (!game.id) game.id = 'g' + Date.now().toString(36) + Math.floor(rand() * 1e6).toString(36);
     const rec = { id: game.id, name, options: [...game.options], pick: game.pick, savedAt: Date.now() };
     const i = games.findIndex(g => g.id === game.id);
-    if (i >= 0) games.splice(i, 1);
-    games.unshift(rec);
+    if (i >= 0) games[i] = rec; else games.unshift(rec); // re-saving keeps the game where the user put it
     const ok = store.set(KEY_GAMES, games) && store.set(KEY_LAST, game.id);
     dirty = false; isSample = false;
     renderStatus(); renderSaved(); renderOptions();
@@ -1463,6 +1531,34 @@ html{-webkit-tap-highlight-color:transparent}
     // Clear the parameter so a reload doesn't bring the shared game back over the user's own.
     try { window.history.replaceState(null, '', location.pathname); } catch (e) {}
     toast(shared ? `친구가 보낸 '${shared.name}' 추첨기예요. 저장하면 계속 쓸 수 있어요.` : '링크가 잘려서 추첨기를 불러오지 못했어요. 링크 전체를 다시 받아 주세요.');
+  }
+
+  /* ---------- back button: in the installed app, ask before closing ---------- */
+  // An extra history entry catches the back press; a normal browser tab keeps its usual back behaviour.
+  if (standalone) {
+    const dlg = $('#exitDlg');
+    let leaving = false;
+    const arm = () => { try { history.pushState({ guard: 1 }, ''); } catch (e) {} };
+    const hideExit = () => { dlg.hidden = true; arm(); };
+    arm();
+    window.addEventListener('popstate', () => {
+      if (leaving) return;
+      if (!el.result.hidden) { closeResult(); arm(); return; } // back closes the result card first
+      if (!dlg.hidden) { hideExit(); return; }
+      dlg.hidden = false;
+      $('#exitCancel').focus({ preventScroll: true });
+    });
+    $('#exitCancel').addEventListener('click', hideExit);
+    dlg.addEventListener('click', e => { if (e.target === dlg) hideExit(); });
+    dlg.addEventListener('keydown', e => { if (e.key === 'Escape') hideExit(); });
+    $('#exitOk').addEventListener('click', () => {
+      leaving = true;
+      dlg.hidden = true;
+      if (sfx.ctx) { sfx.stopMusic(true); sfx.stopRoll(); }
+      try { window.close(); } catch (e) {}
+      // Some phones don't let a page close itself; then one more back press leaves the app.
+      setTimeout(() => { if (!document.hidden) toast('뒤로 가기를 한 번 더 누르면 종료돼요'); }, 300);
+    });
   }
 })();
 </script>
