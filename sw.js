@@ -1,5 +1,5 @@
 // Offline support: the app shell is cached on install, fonts are cached the first time they load.
-const CACHE = 'lottoball-v4';
+const CACHE = 'lottoball-v5';
 const SHELL = [
   './',
   './index.html',
