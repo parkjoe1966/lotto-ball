@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>여행지 게임 모음</title>
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+:root{--bg:#E7EAF1;--surface:#FFFFFF;--ink:#141722;--muted:#5A6173;--line:#D5DAE5;--accent:#2F4FE0;--accent-ink:#FFFFFF;
+  --f-display:"Black Han Sans","IBM Plex Sans KR","Malgun Gothic",sans-serif;--f-body:"IBM Plex Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0E1017;--surface:#171A24;--ink:#ECEFF6;--muted:#9AA1B4;--line:#2A2F3F;--accent:#8095FF;--accent-ink:#0E1017;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E1017;--surface:#171A24;--ink:#ECEFF6;--muted:#9AA1B4;--line:#2A2F3F;--accent:#8095FF;--accent-ink:#0E1017;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding:0 16px 48px}
+.wrap{max-width:760px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;padding:20px 0 8px}
+header img{border-radius:12px}
+h1{font-family:var(--f-display);font-weight:400;font-size:26px;line-height:1.2;margin:0}
+.sub{margin:0;color:var(--muted);font-size:13px}
+.how{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0 4px}
+.how ol{margin:6px 0 0;padding-left:20px}
+.how p{margin:8px 0 0;font-size:13px;color:var(--muted)}
+h2{font-size:13px;letter-spacing:.06em;color:var(--muted);margin:24px 0 10px}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.g{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:8px;min-width:0}
+.g-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.g-head strong{font-size:17px}
+.n{font-size:12px;color:var(--muted);white-space:nowrap}
+.opts{margin:0;font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.btn{justify-self:start;background:var(--accent);color:var(--accent-ink);text-decoration:none;font-weight:700;font-size:14px;border-radius:999px;padding:9px 18px}
+.btn:visited{opacity:.75}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.back{display:inline-block;margin-top:28px;color:var(--accent);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="icons/icon-192.png" width="52" height="52" alt="">
+    <div>
+      <h1>여행지 게임 모음</h1>
+      <p class="sub">뽑아뽑아 로또볼 · 광역시 7개, 도 9개</p>
+    </div>
+  </header>
+
+  <div class="how">
+    <strong>저장하는 방법</strong>
+    <ol>
+      <li><b>열어서 저장하기</b>를 누르면 추첨기가 그 게임으로 열려요.</li>
+      <li>추첨기에서 <b>저장하기</b>를 누르세요.</li>
+      <li>뒤로 가기로 이 페이지에 돌아와 다음 게임도 똑같이 하면 돼요.</li>
+    </ol>
+    <p>뽑을 개수는 1개로 되어 있어요. 저장하기 전에 추첨기에서 바꿀 수 있어요.</p>
+  </div>
+
+  <h2>광역시 · 구 선택</h2>
+  <ul>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(서울)</strong><span class="n">25곳</span></div>
+        <p class="opts">종로구 · 중구 · 용산구 · 성동구 · 광진구 · 동대문구 · 중랑구 · 성북구 · 강북구 · 도봉구 · 노원구 · 은평구 · 서대문구 · 마포구 · 양천구 · 강서구 · 구로구 · 금천구 · 영등포구 · 동작구 · 관악구 · 서초구 · 강남구 · 송파구 · 강동구</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjshJzsmrgpIiwiYyI6MjUsImsiOjEsIm8iOlsi7KKF66Gc6rWsIiwi7KSR6rWsIiwi7Jqp7IKw6rWsIiwi7ISx64-Z6rWsIiwi6rSR7KeE6rWsIiwi64-Z64yA66y46rWsIiwi7KSR656R6rWsIiwi7ISx67aB6rWsIiwi6rCV67aB6rWsIiwi64-E67SJ6rWsIiwi64W47JuQ6rWsIiwi7J2A7Y-J6rWsIiwi7ISc64yA66y46rWsIiwi66eI7Y-s6rWsIiwi7JaR7LKc6rWsIiwi6rCV7ISc6rWsIiwi6rWs66Gc6rWsIiwi6riI7LKc6rWsIiwi7JiB65Ox7Y-s6rWsIiwi64-Z7J6R6rWsIiwi6rSA7JWF6rWsIiwi7ISc7LSI6rWsIiwi6rCV64Ko6rWsIiwi7Iah7YyM6rWsIiwi6rCV64-Z6rWsIl19">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(인천)</strong><span class="n">9곳</span></div>
+        <p class="opts">제물포구 · 영종구 · 미추홀구 · 연수구 · 남동구 · 부평구 · 계양구 · 서구 · 검단구</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjsnbjsspwpIiwiYyI6OSwiayI6MSwibyI6WyLsoJzrrLztj6zqtawiLCLsmIHsooXqtawiLCLrr7jstpTtmYDqtawiLCLsl7DsiJjqtawiLCLrgqjrj5nqtawiLCLrtoDtj4nqtawiLCLqs4TslpHqtawiLCLshJzqtawiLCLqsoDri6jqtawiXX0">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(대구)</strong><span class="n">7곳</span></div>
+        <p class="opts">중구 · 동구 · 서구 · 남구 · 북구 · 수성구 · 달서구</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjrjIDqtawpIiwiYyI6NywiayI6MSwibyI6WyLspJHqtawiLCLrj5nqtawiLCLshJzqtawiLCLrgqjqtawiLCLrtoHqtawiLCLsiJjshLHqtawiLCLri6zshJzqtawiXX0">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(대전)</strong><span class="n">5곳</span></div>
+        <p class="opts">동구 · 중구 · 서구 · 유성구 · 대덕구</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjrjIDsoIQpIiwiYyI6NSwiayI6MSwibyI6WyLrj5nqtawiLCLspJHqtawiLCLshJzqtawiLCLsnKDshLHqtawiLCLrjIDrjZXqtawiXX0">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(울산)</strong><span class="n">4곳</span></div>
+        <p class="opts">중구 · 남구 · 동구 · 북구</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjsmrjsgrApIiwiYyI6NCwiayI6MSwibyI6WyLspJHqtawiLCLrgqjqtawiLCLrj5nqtawiLCLrtoHqtawiXX0">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(부산)</strong><span class="n">15곳</span></div>
+        <p class="opts">중구 · 서구 · 동구 · 영도구 · 부산진구 · 동래구 · 남구 · 북구 · 해운대구 · 사하구 · 금정구 · 강서구 · 연제구 · 수영구 · 사상구</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjrtoDsgrApIiwiYyI6MTUsImsiOjEsIm8iOlsi7KSR6rWsIiwi7ISc6rWsIiwi64-Z6rWsIiwi7JiB64-E6rWsIiwi67aA7IKw7KeE6rWsIiwi64-Z656Y6rWsIiwi64Ko6rWsIiwi67aB6rWsIiwi7ZW07Jq064yA6rWsIiwi7IKs7ZWY6rWsIiwi6riI7KCV6rWsIiwi6rCV7ISc6rWsIiwi7Jew7KCc6rWsIiwi7IiY7JiB6rWsIiwi7IKs7IOB6rWsIl19">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(광주)</strong><span class="n">5곳</span></div>
+        <p class="opts">동구 · 서구 · 남구 · 북구 · 광산구</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjqtJHso7wpIiwiYyI6NSwiayI6MSwibyI6WyLrj5nqtawiLCLshJzqtawiLCLrgqjqtawiLCLrtoHqtawiLCLqtJHsgrDqtawiXX0">열어서 저장하기</a>
+      </li>
+  </ul>
+
+  <h2>도 · 시군 선택</h2>
+  <ul>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(경기도)</strong><span class="n">31곳</span></div>
+        <p class="opts">수원시 · 성남시 · 고양시 · 용인시 · 부천시 · 안산시 · 안양시 · 남양주시 · 화성시 · 평택시 · 의정부시 · 시흥시 · 파주시 · 광명시 · 김포시 · 군포시 · 광주시 · 이천시 · 양주시 · 오산시 · 구리시 · 안성시 · 포천시 · 의왕시 · 하남시 · 여주시 · 동두천시 · 과천시 · 가평군 · 양평군 · 연천군</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjqsr3quLDrj4QpIiwiYyI6MzEsImsiOjEsIm8iOlsi7IiY7JuQ7IucIiwi7ISx64Ko7IucIiwi6rOg7JaR7IucIiwi7Jqp7J247IucIiwi67aA7LKc7IucIiwi7JWI7IKw7IucIiwi7JWI7JaR7IucIiwi64Ko7JaR7KO87IucIiwi7ZmU7ISx7IucIiwi7Y-J7YOd7IucIiwi7J2Y7KCV67aA7IucIiwi7Iuc7Z2l7IucIiwi7YyM7KO87IucIiwi6rSR66qF7IucIiwi6rmA7Y-s7IucIiwi6rWw7Y-s7IucIiwi6rSR7KO87IucIiwi7J207LKc7IucIiwi7JaR7KO87IucIiwi7Jik7IKw7IucIiwi6rWs66as7IucIiwi7JWI7ISx7IucIiwi7Y-s7LKc7IucIiwi7J2Y7JmV7IucIiwi7ZWY64Ko7IucIiwi7Jes7KO87IucIiwi64-Z65GQ7LKc7IucIiwi6rO87LKc7IucIiwi6rCA7Y-J6rWwIiwi7JaR7Y-J6rWwIiwi7Jew7LKc6rWwIl19">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(강원도)</strong><span class="n">18곳</span></div>
+        <p class="opts">춘천시 · 원주시 · 강릉시 · 동해시 · 태백시 · 속초시 · 삼척시 · 홍천군 · 횡성군 · 영월군 · 평창군 · 정선군 · 철원군 · 화천군 · 양구군 · 인제군 · 고성군 · 양양군</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjqsJXsm5Drj4QpIiwiYyI6MTgsImsiOjEsIm8iOlsi7LaY7LKc7IucIiwi7JuQ7KO87IucIiwi6rCV66aJ7IucIiwi64-Z7ZW07IucIiwi7YOc67Cx7IucIiwi7IaN7LSI7IucIiwi7IK87LKZ7IucIiwi7ZmN7LKc6rWwIiwi7Zqh7ISx6rWwIiwi7JiB7JuU6rWwIiwi7Y-J7LC96rWwIiwi7KCV7ISg6rWwIiwi7LKg7JuQ6rWwIiwi7ZmU7LKc6rWwIiwi7JaR6rWs6rWwIiwi7J247KCc6rWwIiwi6rOg7ISx6rWwIiwi7JaR7JaR6rWwIl19">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(충청북도)</strong><span class="n">11곳</span></div>
+        <p class="opts">청주시 · 충주시 · 제천시 · 보은군 · 옥천군 · 영동군 · 증평군 · 진천군 · 괴산군 · 음성군 · 단양군</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjstqnssq3rtoHrj4QpIiwiYyI6MTEsImsiOjEsIm8iOlsi7LKt7KO87IucIiwi7Lap7KO87IucIiwi7KCc7LKc7IucIiwi67O07J2A6rWwIiwi7Jil7LKc6rWwIiwi7JiB64-Z6rWwIiwi7Kad7Y-J6rWwIiwi7KeE7LKc6rWwIiwi6rS07IKw6rWwIiwi7J2M7ISx6rWwIiwi64uo7JaR6rWwIl19">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(충청남도)</strong><span class="n">15곳</span></div>
+        <p class="opts">천안시 · 공주시 · 보령시 · 아산시 · 서산시 · 논산시 · 계룡시 · 당진시 · 금산군 · 부여군 · 서천군 · 청양군 · 홍성군 · 예산군 · 태안군</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjstqnssq3rgqjrj4QpIiwiYyI6MTUsImsiOjEsIm8iOlsi7LKc7JWI7IucIiwi6rO17KO87IucIiwi67O066C57IucIiwi7JWE7IKw7IucIiwi7ISc7IKw7IucIiwi64W87IKw7IucIiwi6rOE66Oh7IucIiwi64u57KeE7IucIiwi6riI7IKw6rWwIiwi67aA7Jes6rWwIiwi7ISc7LKc6rWwIiwi7LKt7JaR6rWwIiwi7ZmN7ISx6rWwIiwi7JiI7IKw6rWwIiwi7YOc7JWI6rWwIl19">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(경상북도)</strong><span class="n">22곳</span></div>
+        <p class="opts">포항시 · 경주시 · 김천시 · 안동시 · 구미시 · 영주시 · 영천시 · 상주시 · 문경시 · 경산시 · 의성군 · 청송군 · 영양군 · 영덕군 · 청도군 · 고령군 · 성주군 · 칠곡군 · 예천군 · 봉화군 · 울진군 · 울릉군</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjqsr3sg4HrtoHrj4QpIiwiYyI6MjIsImsiOjEsIm8iOlsi7Y-s7ZWt7IucIiwi6rK97KO87IucIiwi6rmA7LKc7IucIiwi7JWI64-Z7IucIiwi6rWs66-47IucIiwi7JiB7KO87IucIiwi7JiB7LKc7IucIiwi7IOB7KO87IucIiwi66y46rK97IucIiwi6rK97IKw7IucIiwi7J2Y7ISx6rWwIiwi7LKt7Iah6rWwIiwi7JiB7JaR6rWwIiwi7JiB642V6rWwIiwi7LKt64-E6rWwIiwi6rOg66C56rWwIiwi7ISx7KO86rWwIiwi7Lmg6rOh6rWwIiwi7JiI7LKc6rWwIiwi67SJ7ZmU6rWwIiwi7Jq47KeE6rWwIiwi7Jq466aJ6rWwIl19">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(경상남도)</strong><span class="n">18곳</span></div>
+        <p class="opts">창원시 · 진주시 · 통영시 · 사천시 · 김해시 · 밀양시 · 거제시 · 양산시 · 의령군 · 함안군 · 창녕군 · 고성군 · 남해군 · 하동군 · 산청군 · 함양군 · 거창군 · 합천군</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjqsr3sg4Hrgqjrj4QpIiwiYyI6MTgsImsiOjEsIm8iOlsi7LC97JuQ7IucIiwi7KeE7KO87IucIiwi7Ya17JiB7IucIiwi7IKs7LKc7IucIiwi6rmA7ZW07IucIiwi67CA7JaR7IucIiwi6rGw7KCc7IucIiwi7JaR7IKw7IucIiwi7J2Y66C56rWwIiwi7ZWo7JWI6rWwIiwi7LC964WV6rWwIiwi6rOg7ISx6rWwIiwi64Ko7ZW06rWwIiwi7ZWY64-Z6rWwIiwi7IKw7LKt6rWwIiwi7ZWo7JaR6rWwIiwi6rGw7LC96rWwIiwi7ZWp7LKc6rWwIl19">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(전라북도)</strong><span class="n">14곳</span></div>
+        <p class="opts">전주시 · 군산시 · 익산시 · 정읍시 · 남원시 · 김제시 · 완주군 · 진안군 · 무주군 · 장수군 · 임실군 · 순창군 · 고창군 · 부안군</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjsoITrnbzrtoHrj4QpIiwiYyI6MTQsImsiOjEsIm8iOlsi7KCE7KO87IucIiwi6rWw7IKw7IucIiwi7J217IKw7IucIiwi7KCV7J2N7IucIiwi64Ko7JuQ7IucIiwi6rmA7KCc7IucIiwi7JmE7KO86rWwIiwi7KeE7JWI6rWwIiwi66y07KO86rWwIiwi7J6l7IiY6rWwIiwi7J6E7Iuk6rWwIiwi7Iic7LC96rWwIiwi6rOg7LC96rWwIiwi67aA7JWI6rWwIl19">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(전라남도)</strong><span class="n">22곳</span></div>
+        <p class="opts">목포시 · 여수시 · 순천시 · 나주시 · 광양시 · 담양군 · 곡성군 · 구례군 · 고흥군 · 보성군 · 화순군 · 장흥군 · 강진군 · 해남군 · 영암군 · 무안군 · 함평군 · 영광군 · 장성군 · 완도군 · 진도군 · 신안군</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjsoITrnbzrgqjrj4QpIiwiYyI6MjIsImsiOjEsIm8iOlsi66qp7Y-s7IucIiwi7Jes7IiY7IucIiwi7Iic7LKc7IucIiwi64KY7KO87IucIiwi6rSR7JaR7IucIiwi64u07JaR6rWwIiwi6rOh7ISx6rWwIiwi6rWs66GA6rWwIiwi6rOg7Z2l6rWwIiwi67O07ISx6rWwIiwi7ZmU7Iic6rWwIiwi7J6l7Z2l6rWwIiwi6rCV7KeE6rWwIiwi7ZW064Ko6rWwIiwi7JiB7JWU6rWwIiwi66y07JWI6rWwIiwi7ZWo7Y-J6rWwIiwi7JiB6rSR6rWwIiwi7J6l7ISx6rWwIiwi7JmE64-E6rWwIiwi7KeE64-E6rWwIiwi7Iug7JWI6rWwIl19">열어서 저장하기</a>
+      </li>
+      <li class="g">
+        <div class="g-head"><strong>여행지 선택(제주도)</strong><span class="n">2곳</span></div>
+        <p class="opts">제주시 · 서귀포시</p>
+        <a class="btn" href="https://parkjoe1966.github.io/lotto-ball/?g=eyJuIjoi7Jes7ZaJ7KeAIOyEoO2DnSjsoJzso7zrj4QpIiwiYyI6MiwiayI6MSwibyI6WyLsoJzso7zsi5wiLCLshJzqt4Dtj6zsi5wiXX0">열어서 저장하기</a>
+      </li>
+  </ul>
+
+  <a class="back" href="./">← 추첨기로 가기</a>
+</div>
+</body>
+</html>
