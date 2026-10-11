@@ -1,5 +1,5 @@
 // Offline support: the app shell is cached on install, fonts are cached the first time they load.
-const CACHE = 'lottoball-v5';
+const CACHE = 'lottoball-v6';
 const SHELL = [
   './',
   './index.html',
@@ -11,7 +11,7 @@ const SHELL = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -30,7 +30,7 @@ self.addEventListener('fetch', e => {
   // Pages: try the network first so updates show up, fall back to the cached copy offline.
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-cache' }) // revalidate with the server so a new version shows on the next open
         .then(res => { caches.open(CACHE).then(c => c.put('./index.html', res.clone())); return res; })
         .catch(() => caches.match('./index.html'))
     );
